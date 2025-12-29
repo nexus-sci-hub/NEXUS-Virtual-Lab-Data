@@ -1,0 +1,12 @@
+{
+  "members": [
+    {
+      "email": "member1@nexus.com",
+      "pass": "nexus2025"
+    },
+    {
+      "email": "test@gmail.com",
+      "pass": "science123"
+    }
+  ]
+}
