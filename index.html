@@ -6,51 +6,139 @@
     <title>NEXUS Science Hub | Secure Login</title>
     <style>
         :root { --accent: #00d4ff; --bg: #0b1118; --card: #1a242f; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .login-box { background: var(--card); padding: 40px; border-radius: 12px; border: 1px solid #303f4f; width: 320px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background: var(--bg); 
+            color: white; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+        }
+
+        .login-box { 
+            background: var(--card); 
+            padding: 40px; 
+            border-radius: 12px; 
+            border: 1px solid #303f4f; 
+            width: 320px; 
+            text-align: center; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+        }
+
         h2 { color: var(--accent); margin: 0 0 20px 0; letter-spacing: 1px; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 6px; border: none; background: #2c3e50; color: white; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: var(--accent); color: #003366; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.3s; }
+
+        input[type="email"], input[type="password"], input[type="text"] { 
+            width: 100%; 
+            padding: 12px; 
+            margin: 10px 0; 
+            border-radius: 6px; 
+            border: none; 
+            background: #2c3e50; 
+            color: white; 
+            box-sizing: border-box; 
+            font-size: 14px;
+        }
+
+        /* Show Password Toggle Styling */
+        .show-pass-container {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            margin: 5px 0 15px 2px;
+            font-size: 12px;
+            color: #a0a0a0;
+            cursor: pointer;
+        }
+
+        .show-pass-container input {
+            width: auto;
+            margin-right: 8px;
+            cursor: pointer;
+        }
+
+        button { 
+            width: 100%; 
+            padding: 12px; 
+            background: var(--accent); 
+            color: #003366; 
+            border: none; 
+            border-radius: 6px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            transition: 0.3s; 
+        }
+
         button:disabled { background: #444; color: #888; cursor: not-allowed; }
+
         .error { color: #ff4d4d; font-size: 13px; margin-top: 15px; display: none; padding: 10px; background: rgba(255,0,0,0.1); border-radius: 4px; }
-        .loader { border: 3px solid #f3f3f3; border-top: 3px solid var(--accent); border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: none; margin: 15px auto; }
+        
+        .loader { 
+            border: 3px solid #f3f3f3; 
+            border-top: 3px solid var(--accent); 
+            border-radius: 50%; 
+            width: 20px; 
+            height: 20px; 
+            animation: spin 1s linear infinite; 
+            display: none; 
+            margin: 15px auto; 
+        }
+
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
     <div class="login-box">
-        <h2>NEXUS HUB</h2>
+        <h2>NEXUS Science Hub</h2>
+<p> Login to Virtual lab</p>
+        
         <input type="email" id="email" placeholder="Member Email">
+        
         <input type="password" id="pass" placeholder="Access Password">
+        
+        <label class="show-pass-container">
+            <input type="checkbox" id="togglePass"> Show Password
+        </label>
+
         <button id="btn" onclick="authenticate()">AUTHENTICATE</button>
+        
         <div id="loader" class="loader"></div>
         <div id="err" class="error"></div>
     </div>
 
     <script>
-        // CONFIG - CHANGE THESE IF NEEDED
         const JSON_URL = "https://raw.githubusercontent.com/nexus-sci-hub/NEXUS-Virtual-Lab-Data/main/members.json";
         const REDIRECT_TO = "https://www.shuvadipganguli.world/nexus-science-hub/nexus-virtual-lab";
 
+        // 1. Show/Hide Password Logic
+        const passField = document.getElementById('pass');
+        const toggleCheckbox = document.getElementById('togglePass');
+
+        toggleCheckbox.addEventListener('change', function() {
+            // Switch between 'password' and 'text' types
+            passField.type = this.checked ? 'text' : 'password';
+        });
+
+        // 2. Authentication Logic
         async function authenticate() {
             const btn = document.getElementById('btn');
             const loader = document.getElementById('loader');
             const errDiv = document.getElementById('err');
             const emailInput = document.getElementById('email').value.trim().toLowerCase();
-            const passInput = document.getElementById('pass').value.trim();
+            const passInput = passField.value.trim();
 
             if (!emailInput || !passInput) { alert("Please fill in both fields."); return; }
 
-            // UI State
             errDiv.style.display = "none";
             loader.style.display = "block";
             btn.disabled = true;
 
             try {
-                // Fetching data with cache-buster
                 const response = await fetch(`${JSON_URL}?t=${Date.now()}`);
-                if (!response.ok) throw new Error("Database connection failed. Is the GitHub repo Public?");
+                if (!response.ok) throw new Error("Database connection failed. Ensure the repo is Public.");
 
                 const data = await response.json();
                 const members = data.members || data;
@@ -63,7 +151,6 @@
                     btn.style.color = "white";
                     loader.style.display = "none";
 
-                    // The "Breakout" Redirect: Works even if embedded in other sites
                     setTimeout(() => {
                         window.top.location.href = REDIRECT_TO;
                     }, 800);
@@ -71,7 +158,6 @@
                     throw new Error("Invalid Credentials.");
                 }
             } catch (e) {
-                console.error(e);
                 loader.style.display = "none";
                 btn.disabled = false;
                 errDiv.innerText = e.message;
